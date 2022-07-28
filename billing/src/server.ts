@@ -1,11 +1,23 @@
-import express from 'express';
-const app = express();
-const port = 3000;
+import http from 'http';
+import {app} from './app';
+import {mongoConnect} from "./models/billing.connect";
 
-app.get('/', (req, res) => {
-    res.send('Hello World!');
-});
+const server = http.createServer(app);
+const PORT = process.env.PORT || 4040;
 
-app.listen(port, () => {
-    return console.log(`Express is listening at http://localhost:${port}`);
-});
+async function startServer(){
+    try {
+       await mongoConnect();
+    } catch(err) {
+        throw new Error('Error connecting to the database');
+    }
+    server.listen(PORT, () => {
+        console.log(`[Billing Service]: Server is live and listening on port: ${PORT}...`);
+    })
+}
+
+
+startServer();
+
+
+

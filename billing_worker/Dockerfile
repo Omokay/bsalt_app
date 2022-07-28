@@ -1,6 +1,6 @@
 FROM node:16
 # Create app directory in the image
-WORKDIR ./billing_worker/src
+WORKDIR /src
 
 # Install app dependencies
 COPY package*.json ./
@@ -14,5 +14,8 @@ COPY . .
 # Port Mappings
 # - Worker should not be exposed
 
+# Install nodemon
+RUN npm install -g nodemon
+
 # CMD commands
-CMD [ "node", "npm", "start", "dev", "nodemon", "server.js" ]
+CMD [ "npm", "start" ]

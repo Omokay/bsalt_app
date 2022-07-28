@@ -2,33 +2,46 @@ version: '3.8'
 services:
   # BlueSalt Services
 
+
     # Customer Service
     customer_service:
       container_name: "bluesalt_customer"
-      restart: unless-stopped
+      #restart: unless-stopped
       build:
         context: ./customer
         dockerfile: Dockerfile
       ports:
         - "1010:1010"
+      networks:
+        - bluesalt
+
 
     # Billing Service
     billing_service:
       container_name: "bluesalt_billing"
-      restart: unless-stopped
+      #restart: unless-stopped
+      depends_on:
+        - mongodb
       build:
         context: ./billing
         dockerfile: Dockerfile
       ports:
-        - "4040:4040"
+        - "1011:1011"
+      environment:
+        - MONGODB_CONNSTRING=mongodb://bluesalt:bluesalt@mongodb
+      networks:
+        - bluesalt
+
 
     # Worker Service
     worker_service:
       container_name: "bluesalt_worker"
-      restart: unless-stopped
+      #restart: unless-stopped
       build:
         context: ./billing_worker
         dockerfile: Dockerfile
+      networks:
+        - bluesalt
 
 
     # RabbitMQ Service
@@ -44,6 +57,9 @@ services:
         - "15672:15672"  # HTTP management UI
         - "15692:15692"  # HTTP Prometheus
         - "25672:25672"  # Clustering
+      networks:
+        - bluesalt
+
 
     # MongoDB Service
     mongodb:
@@ -51,10 +67,20 @@ services:
       container_name: bluesalt_mongoDB
       restart: unless-stopped
       environment: # set required env variables to access mongo
-        MONGO_INITDB_ROOT_USERNAME: root
-        MONGO_INITDB_ROOT_PASSWORD: password
+        MONGO_INITDB_ROOT_USERNAME: bluesalt
+        MONGO_INITDB_ROOT_PASSWORD: bluesalt
       ports:
-        - 27017:27017
-      # volumes: # optional to preserve database after container is deleted.
-        # - ./database-data:/data/db
+        - "27017:27017"
+        - "4444:4444"
+      volumes: # optional to preserve database after container is deleted.
+        - ./mongo-data:/data/db
+      networks:
+        - bluesalt
 
+
+networks:
+  bluesalt:
+    driver: bridge
+volumes:
+  mongo-data:
+    driver: local

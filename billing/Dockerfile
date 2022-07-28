@@ -1,6 +1,6 @@
 FROM node:16
 # Create app directory in the image
-WORKDIR ./billing/src
+WORKDIR /src
 
 # Install app dependencies
 COPY package*.json ./
@@ -12,7 +12,10 @@ RUN npm install
 COPY . .
 
 # Port Mappings
-EXPOSE 4040
+EXPOSE 1011
+
+# Install nodemon
+RUN npm install -g nodemon
 
 # CMD commands
-CMD [ "node", "npm", "start", "dev", "nodemon", "server.js" ]
+CMD [ "npm", "start" ]
